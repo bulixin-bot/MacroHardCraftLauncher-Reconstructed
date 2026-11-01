@@ -1,0 +1,33 @@
+真实 VM IL 混合构建验证（静态，未运行目标）
+
+输入与副本
+==========
+- C# 主源码副本：work/unprotect/hybrid-real/main（由 repaired-main 复制，不修改原目录）
+- VM IL 中间输入：work/il-rebuild/diagnostic-nores.dll（仅用于合法 IL 源树提取）
+- IL 文本：VmSource.il（233,873,712 字节）
+- 独立真实 VM 库：VmSource.from-il.dll（AsmResolver/ILAsm 重汇编）
+
+真实 VM 树检查
+==============
+AsmResolver 从 IL 中间模块克隆完整 `1239A4B0` 类型树：57 个类型、5591 个方法、5541 个有体方法、6,795,360 条 IL。
+9 个损坏的 DebuggerDisplayAttribute blob 在 clone 前按白名单移除；所有方法/字段/属性/event 和真实方法体保留，没有生成空方法或 NotImplementedException。记录见 VmSource.map.json。
+随后 ildasm/ilasm round-trip 通过，真实 body 数量与 IL 指令总数保持。
+
+主 C# 编译
+==========
+命令：dotnet build work/unprotect/hybrid-real/main/MacroHardCraftLauncher.csproj --no-restore -p:UseSharedCompilation=false -v:q
+结果：0 warning、0 error；日志 main-build.log；产物 main/bin/Debug/net8.0/MacroHardCraftLauncher.dll。
+此产物仍引用 VmSource.from-il.dll，不能称最终单文件/可运行重建。
+
+AsmResolver 注入验证
+====================
+工具：tools/HybridBuild.csproj；执行 merge MAIN_DLL VmSource.from-il.dll OUTPUT。
+输出：MacroHardCraftLauncher.hybrid.dll（17,241,600 字节）。
+重读报告：MacroHardCraftLauncher.hybrid.report.json；unmapped.json 为空。
+注入后 VM 树仍为 5591/5541/6,795,360，332 个操作数已重绑定到合并模块内定义；字段/方法树无 body 丢失。
+当前仍有 1 个 `MacroHardCraftLauncher.VmSource` AssemblyRef（来自无法安全归一化的 opaque signature/type scope），故此仅为“真实 IL 混合构建验证”而非最终单文件。该 AssemblyRef 消除需继续处理所有 type/method/field signature scopes，再做严格 PE token remap。
+
+未运行限制
+============
+未运行 C# 主程序、VmSource 或 hybrid 输出。原始保护器 .gaygay0/.gaygay1 节、RVA0 AB81ED15、handler dictionary、原 module initializer/token 与 reflection exception semantics 仍未恢复。hybrid 只证明真实 VM IL 树可以保留并注入编译主程序，不证明运行等价。
+
