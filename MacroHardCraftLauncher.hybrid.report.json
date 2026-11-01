@@ -1,0 +1,14 @@
+{
+  "ReboundOperands": 332,
+  "VmMethods": 5591,
+  "VmBodies": 5541,
+  "VmInstructionCount": 6795360,
+  "UnexpectedAssemblyRefs": [
+    "MacroHardCraftLauncher.VmSource, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+  ],
+  "CompiledMainHash": "2F0E2C08660828A43DEBE2097802FF369595E81C6819AC62819E854C01B71B63",
+  "CompiledVmIlHash": "8E52EF0075FA2BAFD42281592E88BCC15A64910F41A821B529AA6276C78E90BF",
+  "MergedHash": "E6B7A9AF3DD7DC41256E19559B3AE07E04A5DA5213A6B2E1B6D5D9DE5C5473F2",
+  "RuntimeVerified": false,
+  "Limitations": "Original VM tokens, handler dictionary keys, original PE/RVA backing data, and module initializer semantics still need restoration. This is source build verification, not a runnable reconstruction."
+}
